@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>键盘英雄 KeyboardHero · 打字练级大作战</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 全局静音开关 -->
+<button id="btn-mute" class="mute-btn" title="音效开关">🔊</button>
+
+<!-- ========== 主菜单 ========== -->
+<section id="screen-menu" class="screen active">
+  <div class="menu-box pop">
+    <h1 class="game-title">键盘英雄</h1>
+    <div class="title-en">KEYBOARD HERO</div>
+    <p class="game-sub">打字练级大作战</p>
+    <div class="menu-btns">
+      <button id="btn-goto-levels" class="btn btn-primary">🎮 闯关训练</button>
+      <button id="btn-goto-battle" class="btn">🧟 键盘保卫战</button>
+      <button id="btn-goto-finger" class="btn">✋ 指法图解</button>
+      <button id="btn-goto-stats" class="btn">🏆 战 绩</button>
+    </div>
+    <div class="tier-box">
+      <div id="menu-tier-badge" class="tier-badge">青铜</div>
+      <div class="tier-info">
+        <div class="tier-line"><span id="menu-tier-name">青铜</span> · 🏆 <b id="menu-cups">0</b></div>
+        <div class="xpbar"><div id="menu-cup-fill" class="xpbar-fill"></div></div>
+        <div id="menu-cup-text" class="cup-text"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 指法图解 ========== -->
+<section id="screen-finger" class="screen">
+  <header class="bar">
+    <button id="btn-finger-back" class="btn btn-back">← 返回</button>
+    <h2>指法图解</h2>
+  </header>
+  <div class="finger-layout">
+    <div class="finger-left">
+      <div id="finger-keyboard" class="kb kb-big"></div>
+      <div id="finger-zones" class="fzones"></div>
+      <p class="kb-note">▲ F、J 键上的凸点是食指的「回家定位点」，闭眼也要摸得到。</p>
+    </div>
+    <div class="finger-side panel-lite">
+      <h3>◈ 基准键位</h3>
+      <p>左手放在 <b class="key-inline">A S D F</b>，右手放在 <b class="key-inline">J K L ;</b>。
+         左右食指分别落在 <b class="key-inline">F</b>、<b class="key-inline">J</b> 的凸点上，
+         拇指轻搭 <b class="key-inline">空格</b>。每击完一个键，手指立刻回到基准键。</p>
+      <h3>◈ 手指分工</h3>
+      <ul class="finger-legend">
+        <li><span class="chip f-lp"></span>左手小指：` 1 Q A Z 及左侧功能键</li>
+        <li><span class="chip f-lr"></span>左手无名指：2 W S X</li>
+        <li><span class="chip f-lm"></span>左手中指：3 E D C</li>
+        <li><span class="chip f-li"></span>左手食指：4 R F V 5 T G B（管两列）</li>
+        <li><span class="chip f-ri"></span>右手食指：6 Y H N 7 U J M（管两列）</li>
+        <li><span class="chip f-rm"></span>右手中指：8 I K ,</li>
+        <li><span class="chip f-rr"></span>右手无名指：9 O L .</li>
+        <li><span class="chip f-rp"></span>右手小指：0 P ; / 及右侧功能键</li>
+        <li><span class="chip f-thumb"></span>拇指：空格</li>
+      </ul>
+      <h3>◈ 姿势要点</h3>
+      <ul class="posture-list">
+        <li>坐直，屏幕与眼睛平齐，距离一臂。</li>
+        <li>手腕悬空，不要压在桌面上。</li>
+        <li>眼睛只看屏幕，绝不低头看键盘。</li>
+        <li>击键用指尖，动作轻快，击完即回基准键。</li>
+        <li>大写用「另一侧小指按 Shift」：打左手字母按右 Shift，反之亦然。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 闯关训练 · 关卡选择 ========== -->
+<section id="screen-levels" class="screen">
+  <header class="bar">
+    <button id="btn-levels-back" class="btn btn-back">← 返回</button>
+    <h2>闯关训练</h2>
+  </header>
+  <div id="level-grid" class="level-grid"></div>
+</section>
+
+<!-- ========== 闯关训练 · 练习界面 ========== -->
+<section id="screen-train" class="screen">
+  <header class="bar">
+    <button id="btn-train-quit" class="btn btn-back">← 返回</button>
+    <div class="train-head">
+      <h2 id="train-level-name">—</h2>
+      <p id="train-level-tip" class="train-tip">—</p>
+    </div>
+    <label class="hidekb"><input type="checkbox" id="chk-hidekb"> 隐藏键盘提示</label>
+    <button id="btn-music" class="btn btn-back">🎵 音符 开</button>
+  </header>
+  <div id="train-text" class="train-text"></div>
+  <!-- 下一键·特别提示：巨型键帽 + 手指标签 -->
+  <div id="train-next-info" class="next-hero">
+    <div class="nk-cap" id="next-key-cap"><span id="next-key-char">—</span></div>
+    <div class="nk-meta">
+      <div class="nk-label">下一键</div>
+      <div class="nk-finger" id="next-key-finger">—</div>
+      <div class="nk-shift hidden" id="next-key-shift"></div>
+    </div>
+  </div>
+  <div id="train-keyboard-wrap" class="train-kb-wrap">
+    <div id="train-keyboard" class="kb"></div>
+    <div id="train-finger-zones" class="fzones"></div>
+  </div>
+  <div class="train-stats">
+    <span class="ts-item">WPM <b id="train-wpm">0</b></span>
+    <span class="ts-item">准确率 <b id="train-acc">100%</b></span>
+    <div class="progress"><div id="train-progress-fill"></div></div>
+  </div>
+  <div id="music-hint" class="music-hint">🎵 键盘即琴键：A S D F G H J = 1 2 3 4 5 6 7，试试《小星星》：A A G G H H G · F F D D S S A</div>
+
+  <!-- 结算浮层 -->
+  <div id="train-result" class="overlay hidden">
+    <div class="panel pop">
+      <h3 id="result-title">训练完成</h3>
+      <div id="result-stars" class="stars">☆☆☆</div>
+      <div class="result-rows">
+        <div>WPM：<b id="result-wpm">0</b></div>
+        <div>准确率：<b id="result-acc">0%</b></div>
+        <div id="result-unlock-msg" class="unlock-msg"></div>
+      </div>
+      <div class="panel-btns">
+        <button id="btn-result-retry" class="btn">↻ 重练</button>
+        <button id="btn-result-next" class="btn btn-primary">下一关 →</button>
+        <button id="btn-result-back" class="btn">返回关卡</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 键盘保卫战 · 英雄选择 ========== -->
+<section id="screen-heroes" class="screen">
+  <header class="bar">
+    <button id="btn-heroes-back" class="btn btn-back">← 返回</button>
+    <h2>键盘保卫战 · 选择英雄</h2>
+  </header>
+  <p class="heroes-tip">🧟 敌人从右边杀过来了！守住五条路，别让它们咬到左边的基地！</p>
+  <div id="hero-grid" class="hero-grid"></div>
+</section>
+
+<!-- ========== 键盘保卫战 · 战斗 ========== -->
+<section id="screen-battle" class="screen">
+  <header class="bar battle-hud">
+    <button id="btn-battle-quit" class="btn btn-back">✕ 撤退</button>
+    <button id="btn-battle-pause" class="btn btn-back">⏸ 暂停</button>
+    <span class="hud-item">🏠 <span class="hpbar"><span id="battle-hp-fill" class="hp-ok"></span></span></span>
+    <span class="hud-item">分数 <b id="battle-score">0</b></span>
+    <span class="hud-item">波次 <b id="battle-wave">1</b></span>
+    <span class="hud-item">连击 <b id="battle-combo">0</b> <b id="battle-mult">×1</b></span>
+  </header>
+  <div id="battle-field" class="battle-field">
+    <!-- 左端基地：每条路一座小房子 -->
+    <div class="base-col">
+      <span>🏠</span><span>🏠</span><span>🏠</span><span>🏠</span><span>🏠</span>
+    </div>
+    <div id="battle-overlay" class="battle-overlay hidden"><span id="battle-overlay-text">第 1 波</span></div>
+    <div id="battle-pause-overlay" class="battle-overlay hidden"><span>⏸ 已暂停</span></div>
+  </div>
+</section>
+
+<!-- ========== 键盘保卫战 · 结算 ========== -->
+<section id="screen-battle-over" class="screen">
+  <div class="panel over-panel pop">
+    <h3>战斗结束</h3>
+    <div id="over-newbest" class="newbest hidden">🎉 新纪录！</div>
+    <div class="result-rows">
+      <div>分数：<b id="over-score">0</b></div>
+      <div>击杀：<b id="over-kills">0</b></div>
+      <div>最高连击：<b id="over-maxcombo">0</b></div>
+      <div>本局杯数：<b id="over-cups">0</b></div>
+      <div>英雄最佳：<b id="over-best">0</b></div>
+    </div>
+    <div class="panel-btns">
+      <button id="btn-over-retry" class="btn btn-primary">↻ 再战</button>
+      <button id="btn-over-heroes" class="btn">换英雄</button>
+      <button id="btn-over-menu" class="btn">主菜单</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 战绩 ========== -->
+<section id="screen-stats" class="screen">
+  <header class="bar">
+    <button id="btn-stats-back" class="btn btn-back">← 返回</button>
+    <h2>战绩 · 英雄档案</h2>
+  </header>
+  <div class="tier-box wide">
+    <div id="stat-tier-badge" class="tier-badge">青铜</div>
+    <div class="tier-info">
+      <div class="tier-line"><span id="stat-tier-name">青铜</span> · 🏆 <b id="stat-cups">0</b></div>
+      <div class="xpbar"><div id="stat-cup-fill" class="xpbar-fill"></div></div>
+      <div id="stat-cup-text" class="cup-text"></div>
+    </div>
+  </div>
+  <h3 class="sec-title">英雄收集</h3>
+  <div id="stats-hero-wall" class="hero-grid small"></div>
+  <h3 class="sec-title">训练数据</h3>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num" id="stat-total-keys">0</div><div class="stat-label">总击键数</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-total-correct">0</div><div class="stat-label">总正确字符</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-total-time">0</div><div class="stat-label">总练习时长</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-best-wpm">0</div><div class="stat-label">最佳 WPM</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-best-acc">—</div><div class="stat-label">最佳准确率</div></div>
+  </div>
+  <button id="btn-clear-data" class="btn btn-danger">⚠ 清空全部数据</button>
+</section>
+
+<!-- file:// 下 ES modules 会被 CORS 拦截，因此用普通 script 标签按顺序加载 -->
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/battle.js"></script>
+</body>
+</html>
