@@ -1,0 +1,158 @@
+/* ============================================================
+   bomb.css —— 拆弹专家（倒计时剪线）样式。
+   沿用 style.css 的拉布布潮玩语言；震屏/光标闪烁/横幅弹入
+   复用全局 shake / curBlink / flashBad / bannerIn 动画。
+   ============================================================ */
+
+/* ---------- 顶栏数据 ---------- */
+.bmb-hud{font-size:14px;font-weight:bold;color:#fff;text-shadow:1px 1px 0 rgba(43,58,74,.5);}
+
+/* ---------- 布局 ---------- */
+.bmb-wrap{max-width:760px;margin:0 auto;}
+
+/* ---------- 炸弹区 ---------- */
+.bmb-box{
+  position:relative;text-align:center;
+  background:rgba(43,58,74,.45);
+  border:3px solid var(--ink);border-radius:18px;
+  box-shadow:0 5px 0 rgba(43,58,74,.3);
+  padding:24px;
+}
+.bmb-box.shake{animation:shake .4s;} /* 复用全局震屏 */
+
+/* 倒计时条：>20s 绿、>10s 黄、≤10s 红 */
+.bmb-timerbar{
+  height:16px;border:2px solid var(--ink);border-radius:999px;
+  background:rgba(255,255,255,.85);overflow:hidden;margin-bottom:16px;
+}
+#bmb-timer-fill{display:block;height:100%;width:100%;transition:width .1s linear;}
+#bmb-timer-fill.t-ok{background:var(--green);}
+#bmb-timer-fill.t-warn{background:var(--yellow);}
+#bmb-timer-fill.t-danger{background:var(--red);}
+
+/* 炸弹：呼吸摇晃；≤10s 进入心跳加速 */
+.bmb-emoji{
+  font-size:110px;line-height:1.2;
+  animation:bmbBreathe 1.6s ease-in-out infinite;
+  filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));
+}
+.bmb-emoji.panic{
+  animation-duration:.45s;
+  filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)) drop-shadow(0 0 14px rgba(255,80,80,.8));
+}
+@keyframes bmbBreathe{
+  0%,100%{transform:scale(1) rotate(-2deg);}
+  50%{transform:scale(1.07) rotate(2deg);}
+}
+
+/* ---------- 三根线：未剪完整，剪断后两半垂落 ---------- */
+.bmb-wires{display:flex;flex-direction:column;gap:16px;align-items:center;margin-top:18px;}
+.bmb-wire{position:relative;width:280px;height:16px;}
+.bmb-wire .whalf{
+  position:absolute;top:0;height:100%;width:50%;
+  border:2px solid var(--ink);
+}
+.bmb-wire .whalf.l{left:0;border-radius:8px 0 0 8px;}
+.bmb-wire .whalf.r{right:0;border-radius:0 8px 8px 0;}
+.w-red .whalf{background:var(--red);}
+.w-blue .whalf{background:#4A7FC9;}
+.w-yellow .whalf{background:var(--yellow);}
+.bmb-wire-name{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:10px;font-weight:bold;color:#fff;letter-spacing:2px;
+  text-shadow:1px 1px 0 var(--ink);pointer-events:none;
+}
+.bmb-wire.cut .whalf.l{animation:bmbWireL .6s forwards;}
+.bmb-wire.cut .whalf.r{animation:bmbWireR .6s forwards;}
+.bmb-wire.cut .bmb-wire-name{opacity:0;transition:opacity .2s;}
+@keyframes bmbWireL{to{transform:translate(-34px,64px) rotate(-52deg);opacity:0;}}
+@keyframes bmbWireR{to{transform:translate(34px,64px) rotate(52deg);opacity:0;}}
+
+/* ---------- 目标句面板（奶油贴纸，train-text 视觉语言） ---------- */
+.bmb-sentence{
+  margin:22px auto 0;
+  background:var(--cream);
+  border:3px solid var(--ink);border-radius:16px;
+  box-shadow:0 5px 0 rgba(43,58,74,.3);
+  padding:20px 26px;text-align:center;
+  font-family:var(--mono);font-size:30px;line-height:1.6;
+  min-height:84px;
+}
+.bmb-sentence.flash-bad{animation:flashBad .3s;} /* 复用全局红闪 */
+.bmb-ch{color:#9aa7b8;}
+.bmb-ch.done{color:#4CAF1D;font-weight:bold;}
+.bmb-ch.cur{
+  color:var(--ink);
+  box-shadow:inset 0 -4px 0 var(--yellow);
+  animation:curBlink 1s step-end infinite; /* 复用全局光标闪烁 */
+}
+.bmb-ch.badflash{color:#fff;background:var(--red);border-radius:6px;}
+
+.bmb-tip{
+  text-align:center;margin-top:14px;
+  color:rgba(255,255,255,.85);font-size:13px;font-weight:bold;
+  text-shadow:1px 1px 0 rgba(43,58,74,.4);
+}
+
+/* ---------- 大写 Shift 随行提示（占位行避免布局跳动；敲错大小写时加急变红） ---------- */
+.bmb-shift-row{
+  min-height:48px;margin-top:14px;
+  display:flex;justify-content:center;align-items:flex-start;
+}
+.bmb-shift-hint{
+  background:var(--yellow);border:3px solid var(--ink);border-radius:999px;
+  padding:8px 22px;font-size:16px;font-weight:bold;color:var(--ink);
+  box-shadow:0 4px 0 rgba(43,58,74,.35);
+  /* 弹入一次 + 常态轻微脉动（保持存在感，不刺眼） */
+  animation:bannerIn .45s cubic-bezier(.68,-.55,.27,1.55),bmbHintPulse 1.4s ease-in-out .5s infinite;
+}
+@keyframes bmbHintPulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+}
+.bmb-shift-hint.urgent{
+  background:var(--red);color:#fff;
+  animation:bmbHintUrgent .5s ease-in-out infinite;
+}
+@keyframes bmbHintUrgent{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+}
+
+/* ---------- 准备横幅（复用全局 bannerIn 弹入） ---------- */
+.bmb-ready{
+  position:fixed;inset:0;z-index:60;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(43,58,74,.35);pointer-events:none;
+}
+.bmb-ready span{
+  font-size:34px;font-weight:bold;letter-spacing:6px;color:var(--ink);
+  background:var(--yellow);
+  border:3px solid var(--ink);border-radius:18px;
+  box-shadow:0 6px 0 rgba(43,58,74,.4);
+  padding:16px 40px;
+  animation:bannerIn .45s cubic-bezier(.68,-.55,.27,1.55);
+}
+
+/* ---------- 输入法提示条 ---------- */
+.bmb-ime{
+  position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:60;
+  background:var(--cream);border:3px solid var(--ink);border-radius:12px;
+  padding:10px 18px;font-size:15px;font-weight:bold;color:var(--ink);
+  box-shadow:0 4px 0 rgba(43,58,74,.35);
+  animation:bannerIn .45s cubic-bezier(.68,-.55,.27,1.55);
+}
+
+/* ---------- 全屏闪光（爆炸红 / 成功金） ---------- */
+.bmb-flash{position:fixed;inset:0;z-index:55;pointer-events:none;}
+.bmb-flash.red{animation:bmbRed .7s;}
+.bmb-flash.gold{animation:bmbGold .8s;}
+@keyframes bmbRed{0%{background:rgba(255,40,40,.6);}100%{background:rgba(255,40,40,0);}}
+@keyframes bmbGold{0%{background:rgba(255,201,60,.55);}100%{background:rgba(255,201,60,0);}}
+
+/* ---------- 窄屏适配 ---------- */
+@media (max-width:720px){
+  .bmb-sentence{font-size:21px;padding:14px;}
+  .bmb-emoji{font-size:80px;}
+  .bmb-wire{width:210px;}
+}
