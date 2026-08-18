@@ -159,6 +159,52 @@
       'Discipline wins the battle.',
       'Trust your fingers.',
       'Speed comes with practice.'
-    ]
+    ],
+
+    /* ---------- 保卫战 · 敌人类型数值（battle.js 引用） ----------
+       dmg       : 漏怪扣血；bait 为 0（走到基地不扣血，直接消失）
+       score     : 击杀基础分；bait 为 0（敲它反而扣分）
+       speedMult : 相对英雄基准速度的倍率
+       bait 敲完惩罚：-10 分 + 连击清零（见 battle.js killBait） */
+    ENEMY_DEFS: {
+      normal: { emoji: '🧟',   dmg: 10, score: 10,  speedMult: 1.0,  cls: 'e-normal' },
+      fast:   { emoji: '🐛',   dmg: 8,  score: 15,  speedMult: 1.9,  cls: 'e-fast' },
+      shield: { emoji: '🛡️',   dmg: 12, score: 30,  speedMult: 0.75, cls: 'e-shield' },
+      bait:   { emoji: '👻',   dmg: 0,  score: 0,   speedMult: 1.0,  cls: 'e-bait' },
+      elite:  { emoji: '🧟‍♂️', dmg: 20, score: 25,  speedMult: 0.8,  cls: 'e-elite' },
+      boss:   { emoji: '👹',   dmg: 40, score: 100, speedMult: 0.55, cls: 'e-boss' }
+    },
+
+    /* ---------- 保卫战 · 局内升级池（每 3 波三选一） ---------- */
+    UPGRADES: [
+      { id: 'protect', icon: '🧿', name: '连击保护', desc: '按错键不再清空连击' },
+      { id: 'hp25',    icon: '❤️', name: '生命扩容', desc: '生命上限 +25，并回复 25 点' },
+      { id: 'vamp',    icon: '🩸', name: '击杀回血', desc: '每击杀一个敌人回复 1 点生命' },
+      { id: 'magnet',  icon: '🧲', name: '首字母磁吸', desc: '敲一个字母时，同字母的单字敌人全部消灭' },
+      { id: 'armor',   icon: '🔨', name: '破甲',     desc: '精英与盾牌兵的词长 -1' },
+      { id: 'slow',    icon: '🐌', name: '缓速结界', desc: '所有敌人移动速度 -12%' },
+      { id: 'charge',  icon: '⚡', name: '快速充能', desc: '技能能量获取翻倍' },
+      { id: 'bounty',  icon: '💰', name: '赏金加成', desc: '所有得分 +25%' }
+    ],
+
+    /* ---------- 保卫战 · 成就表 ---------- */
+    ACHIEVEMENTS: [
+      { id: 'first_blood', icon: '🎯', name: '初出茅庐', desc: '首次击杀一个敌人',        cups: 5 },
+      { id: 'boss_slayer', icon: '👹', name: 'BOSS克星', desc: '首次击杀 BOSS',           cups: 15 },
+      { id: 'combo50',     icon: '🔥', name: '连击大师', desc: '单局连击达到 50',         cups: 15 },
+      { id: 'combo100',    icon: '☄️', name: '键圣',     desc: '单局连击达到 100',        cups: 30 },
+      { id: 'skill_user',  icon: '💥', name: '技能大师', desc: '首次释放技能',            cups: 10 },
+      { id: 'perfect5',    icon: '🌟', name: '完美防线', desc: '一局内无伤通过 5 波',     cups: 20 },
+      { id: 'score3000',   icon: '💎', name: '高分战士', desc: '单局得分达到 3000',       cups: 20 },
+      { id: 'kills1000',   icon: '⚔️', name: '千杀',     desc: '累计击杀 1000 个敌人',    cups: 20 },
+      { id: 'wave15',      icon: '🚀', name: '远征军',   desc: '单局到达第 15 波',         cups: 30 },
+      { id: 'all_heroes',  icon: '👑', name: '群英荟萃', desc: '每个英雄都打过保卫战',    cups: 15 }
+    ],
+
+    /* ---------- 保卫战 · 每日挑战 ---------- */
+    DAILY: {
+      reward: 50,                                  // 完成奖励杯数
+      targetBase: 600                              // 目标分 = targetBase × 英雄得分倍率
+    }
   };
 })();
