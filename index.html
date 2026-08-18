@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>键盘英雄 KeyboardHero · 打字练级大作战</title>
 <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/rhythm.css">
+  <link rel="stylesheet" href="css/bomb.css">
+  <link rel="stylesheet" href="css/race.css">
 </head>
 <body>
 
@@ -19,7 +22,10 @@
     <p class="game-sub">打字练级大作战</p>
     <div class="menu-btns">
       <button id="btn-goto-levels" class="btn btn-primary">🎮 闯关训练</button>
+      <button id="btn-goto-rhythm" class="btn">🎵 节奏模式</button>
       <button id="btn-goto-battle" class="btn">🧟 键盘保卫战</button>
+      <button id="btn-goto-race" class="btn">🏎️ 打字赛车</button>
+      <button id="btn-goto-bomb" class="btn">💣 拆弹专家</button>
       <button id="btn-goto-finger" class="btn">✋ 指法图解</button>
       <button id="btn-goto-stats" class="btn">🏆 战 绩</button>
     </div>
@@ -142,6 +148,7 @@
     <h2>键盘保卫战 · 选择英雄</h2>
   </header>
   <p class="heroes-tip">🧟 敌人从右边杀过来了！守住五条路，别让它们咬到左边的基地！</p>
+  <div id="daily-card" class="daily-card"></div>
   <div id="hero-grid" class="hero-grid"></div>
 </section>
 
@@ -154,6 +161,10 @@
     <span class="hud-item">分数 <b id="battle-score">0</b></span>
     <span class="hud-item">波次 <b id="battle-wave">1</b></span>
     <span class="hud-item">连击 <b id="battle-combo">0</b> <b id="battle-mult">×1</b></span>
+    <span class="hud-item energy" id="hud-energy" title="击杀敌人积攒能量，满格后按 1-4 释放技能">
+      ⚡ 能量 <span class="ebar"><span id="battle-energy-fill"></span></span>
+      <b id="battle-energy-num">0/20</b>
+    </span>
   </header>
   <div id="battle-field" class="battle-field">
     <!-- 左端基地：每条路一座小房子 -->
@@ -162,6 +173,12 @@
     </div>
     <div id="battle-overlay" class="battle-overlay hidden"><span id="battle-overlay-text">第 1 波</span></div>
     <div id="battle-pause-overlay" class="battle-overlay hidden"><span>⏸ 已暂停</span></div>
+    <!-- 局内升级三选一（每 3 波弹出，选择期间时间暂停） -->
+    <div id="upgrade-overlay" class="upgrade-overlay hidden"></div>
+    <!-- 技能提示条（满能量时显示） -->
+    <div id="skill-hint" class="skill-hint hidden">⚡ 能量已满！按 <b>1</b> 冰封全场 · <b>2</b> 闪电清路 · <b>3</b> 护盾 · <b>4</b> 治疗</div>
+    <!-- 道具/提示横幅 -->
+    <div id="item-banner" class="item-banner hidden"></div>
   </div>
 </section>
 
@@ -201,6 +218,8 @@
   </div>
   <h3 class="sec-title">英雄收集</h3>
   <div id="stats-hero-wall" class="hero-grid small"></div>
+  <h3 class="sec-title">成就</h3>
+  <div id="stats-ach-wall" class="ach-wall"></div>
   <h3 class="sec-title">训练数据</h3>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-num" id="stat-total-keys">0</div><div class="stat-label">总击键数</div></div>
@@ -209,6 +228,12 @@
     <div class="stat-card"><div class="stat-num" id="stat-best-wpm">0</div><div class="stat-label">最佳 WPM</div></div>
     <div class="stat-card"><div class="stat-num" id="stat-best-acc">—</div><div class="stat-label">最佳准确率</div></div>
   </div>
+  <h3 class="sec-title">小游戏纪录</h3>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num" id="stat-rhythm-best">—</div><div class="stat-label">节奏模式 · 最高评级</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-bomb-best">—</div><div class="stat-label">拆弹专家 · 最高分</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-race-best">—</div><div class="stat-label">打字赛车 · 最快（秒）</div></div>
+  </div>
   <button id="btn-clear-data" class="btn btn-danger">⚠ 清空全部数据</button>
 </section>
 
@@ -216,5 +241,11 @@
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
 <script src="js/battle.js"></script>
+<script src="js/rhythm.js"></script>
+<script src="js/bomb.js"></script>
+<script src="js/race.js"></script>
+
+<!-- 成就解锁 toast（右上角滑入） -->
+<div id="ach-toast" class="ach-toast hidden"></div>
 </body>
 </html>
