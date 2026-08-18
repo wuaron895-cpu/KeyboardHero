@@ -101,8 +101,9 @@ body{
   margin-top:6px;
 }
 .game-sub{color:var(--dim);letter-spacing:8px;margin:12px 0 32px;font-size:16px;font-weight:bold;}
-.menu-btns{display:flex;flex-direction:column;gap:14px;max-width:320px;margin:0 auto 32px;}
-.menu-btns .btn{font-size:18px;padding:14px;}
+.menu-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:340px;margin:0 auto 32px;}
+.menu-btns .btn{font-size:16px;padding:12px;}
+.menu-btns .btn-primary{grid-column:1 / -1;font-size:18px;padding:14px;}
 
 /* ---------- 段位徽章 / 杯数进度 ---------- */
 .tier-box{display:flex;align-items:center;gap:16px;text-align:left;border-top:3px dashed rgba(43,58,74,.2);padding-top:18px;}
@@ -493,6 +494,8 @@ body.music-off .ch-jp{display:none;} /* 音符模式关闭：与旧版外观一�
   border-right:3px solid var(--ink);
   font-size:30px;
 }
+.base-col span{transition:transform .2s;}
+.base-col .b-hurt{animation:hurtHouse .5s;}
 
 /* 敌人 */
 .enemy{
@@ -514,6 +517,41 @@ body.music-off .ch-jp{display:none;} /* 音符模式关闭：与旧版外观一�
 .e-elite .e-emoji{font-size:44px;}
 .e-boss .e-emoji{font-size:68px;} /* BOSS 体型 ×1.8 */
 .e-boss .e-label{font-size:17px;}
+/* 快速虫：细长小体型 */
+.e-fast .e-emoji{font-size:28px;}
+.e-fast .e-label{font-size:13px;background:#FFF3C4;}
+/* 盾牌兵：盾键胶囊 */
+.e-shield .shield-key{
+  display:inline-block;margin-right:6px;padding:0 6px;
+  background:var(--red);color:#fff;border:2px solid var(--ink);
+  border-radius:8px;font-family:var(--mono);font-weight:bold;
+}
+.e-shield.shield-on .e-emoji{animation:shieldGlow 1s ease-in-out infinite;}
+@keyframes shieldGlow{
+  0%,100%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.3)) drop-shadow(0 0 0 rgba(255,80,80,0));}
+  50%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.3)) drop-shadow(0 0 10px rgba(255,80,80,.8));}
+}
+/* 诱饵：紫雾感，需仔细辨认 */
+.e-bait .e-label{background:#EDE7FF;border-color:#9B6BE8;}
+.e-bait .e-emoji{opacity:.85;}
+.e-bait .bait-mark{
+  position:absolute;right:-4px;top:-14px;font-size:13px;
+  transform:rotate(12deg);
+  animation:baitBlink 1.2s steps(2) infinite;
+}
+@keyframes baitBlink{0%{opacity:1;}100%{opacity:.25;}}
+/* 危险预警：进入警戒区红色警告 */
+.enemy.danger .e-label{
+  border-color:var(--red);
+  animation:dangerPulse .5s ease-in-out infinite;
+}
+.enemy.danger .e-emoji{
+  animation:sway .55s ease-in-out infinite,dangerPulse .5s ease-in-out infinite;
+}
+@keyframes dangerPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,60,60,0);}
+  50%{box-shadow:0 0 0 6px rgba(255,60,60,.45);}
+}
 @keyframes sway{
   0%,100%{transform:rotate(-7deg);}
   50%{transform:rotate(7deg);}
@@ -522,13 +560,43 @@ body.music-off .ch-jp{display:none;} /* 音符模式关闭：与旧版外观一�
   border-color:var(--orange);
   box-shadow:0 0 0 3px var(--yellow),0 0 14px var(--yellow);
 }
+/* 锁定准星：悬在敌人上方 */
+.enemy.locked .lock-reticle{
+  display:block;
+}
+.lock-reticle{
+  display:none;margin:0 auto 2px;width:0;height:0;position:relative;
+}
+.lock-reticle::before{
+  content:'🎯';position:absolute;left:50%;top:0;font-size:20px;
+  transform:translateX(-50%);
+  animation:reticleSpin 1.4s ease-in-out infinite;
+}
+@keyframes reticleSpin{
+  0%,100%{transform:translateX(-50%) rotate(-8deg);}
+  50%{transform:translateX(-50%) rotate(8deg);}
+}
 .e-ch.hit{color:#4CAF1D;}
+/* 冰冻：敌人整体青蓝 + 减速 */
+.enemy.frozen{filter:drop-shadow(0 0 8px #7CD8FF) saturate(.6) hue-rotate(150deg);}
 /* 击杀：弹跳缩放消失 */
 .enemy.dying .e-emoji,.enemy.dying .e-label{animation:diePop .22s forwards;}
+.enemy.dying .shield-key{animation:diePop .22s forwards;}
 @keyframes diePop{
   0%{transform:scale(1);}
   50%{transform:scale(1.4);}
   100%{transform:scale(0);opacity:0;}
+}
+/* 击杀碎屑：字母碎片飞散 */
+.debris{
+  position:absolute;z-index:5;pointer-events:none;
+  font-family:var(--mono);font-weight:bold;font-size:15px;color:#fff;
+  text-shadow:1px 1px 0 var(--ink);
+  animation:debrisFly .6s ease-out forwards;
+}
+@keyframes debrisFly{
+  0%{transform:translate(0,0) rotate(0);opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0;}
 }
 
 /* 爆分小字 / COMBO 大字 */
@@ -577,6 +645,122 @@ body.music-off .ch-jp{display:none;} /* 音符模式关闭：与旧版外观一�
   to{transform:scale(1) rotate(0);opacity:1;}
 }
 
+/* ---------- 保卫战 · 技能能量条 ---------- */
+.hud-item.energy{display:inline-flex;align-items:center;gap:4px;}
+.ebar{
+  display:inline-block;width:70px;height:12px;vertical-align:-2px;
+  border:2px solid var(--ink);border-radius:8px;background:rgba(255,255,255,.6);
+  overflow:hidden;
+}
+#battle-energy-fill{display:block;height:100%;width:0;background:var(--yellow);transition:width .15s;}
+.hud-item.energy.full{animation:energyBlink .6s steps(2) infinite;}
+@keyframes energyBlink{0%{opacity:1;}100%{opacity:.55;}}
+
+/* ---------- 保卫战 · 技能提示 / 道具横幅 ---------- */
+.skill-hint{
+  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:8;
+  background:var(--cream);border:3px solid var(--ink);border-radius:14px;
+  padding:10px 18px;font-size:15px;font-weight:bold;color:var(--ink);
+  box-shadow:0 5px 0 rgba(43,58,74,.35);
+  animation:bannerIn .45s cubic-bezier(.68,-.55,.27,1.55);
+  pointer-events:none;
+}
+.skill-hint b{color:var(--orange);font-size:17px;margin:0 2px;}
+.item-banner{
+  position:absolute;left:50%;top:14%;transform:translateX(-50%);z-index:9;
+  font-size:30px;font-weight:bold;color:var(--yellow);
+  text-shadow:3px 3px 0 var(--ink);
+  animation:comboBounce .9s forwards;
+  pointer-events:none;
+}
+
+/* ---------- 保卫战 · 局内升级三选一 ---------- */
+.upgrade-overlay{
+  position:absolute;inset:0;z-index:11;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(43,58,74,.55);pointer-events:auto;
+}
+.upgrade-title{
+  font-size:30px;font-weight:bold;color:var(--yellow);
+  text-shadow:3px 3px 0 var(--ink);margin-bottom:22px;letter-spacing:4px;
+}
+.upgrade-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+.upgrade-card{
+  width:190px;background:var(--cream);border:3px solid var(--ink);border-radius:16px;
+  box-shadow:0 6px 0 rgba(43,58,74,.4);
+  padding:18px 14px;text-align:center;cursor:pointer;
+  transition:transform .12s;
+}
+.upgrade-card:hover{transform:translateY(-5px) scale(1.04);}
+.upgrade-card .u-icon{font-size:38px;margin-bottom:8px;}
+.upgrade-card .u-name{font-size:17px;font-weight:bold;color:var(--ink);margin-bottom:8px;}
+.upgrade-card .u-desc{font-size:13px;color:var(--dim);font-weight:bold;line-height:1.5;}
+.upgrade-card .u-key{display:inline-block;margin-top:10px;font-size:12px;color:var(--orange);font-weight:bold;}
+.upgrade-skip{
+  margin-top:22px;font-size:14px;font-weight:bold;color:#fff;cursor:pointer;
+  text-shadow:1px 1px 0 var(--ink);opacity:.8;
+}
+.upgrade-skip:hover{opacity:1;}
+
+/* ---------- 完美防守 · 全屏金色特效 ---------- */
+.battle-field.perfect-flash{animation:perfectFlash .8s;}
+@keyframes perfectFlash{
+  0%{box-shadow:inset 0 0 0 999px rgba(255,201,60,.55);}
+  100%{box-shadow:inset 0 0 0 999px rgba(255,201,60,0);}
+}
+.perfect-pop{
+  position:absolute;left:50%;top:30%;z-index:7;pointer-events:none;
+  transform:translateX(-50%);
+  font-size:64px;font-weight:bold;color:var(--yellow);
+  text-shadow:4px 4px 0 var(--ink);letter-spacing:8px;
+  animation:perfectPop 1.4s forwards;
+}
+@keyframes perfectPop{
+  0%{transform:translateX(-50%) scale(0) rotate(-10deg);opacity:0;}
+  30%{transform:translateX(-50%) scale(1.25) rotate(2deg);opacity:1;}
+  60%{transform:translateX(-50%) scale(1);}
+  100%{transform:translateX(-50%) scale(1) translateY(-40px);opacity:0;}
+}
+
+/* ---------- 基地被咬 ---------- */
+@keyframes hurtHouse{
+  0%,100%{transform:scale(1);}
+  40%{transform:scale(1.3) rotate(-10deg);}
+  70%{transform:scale(.9);}
+}
+
+/* ---------- 每日挑战卡 ---------- */
+.daily-card{
+  max-width:760px;margin:14px auto 20px;padding:14px 22px;
+  background:linear-gradient(135deg,#FFF3C4,#FFE28A);
+  border:3px solid var(--ink);border-radius:16px;
+  box-shadow:0 5px 0 rgba(43,58,74,.35);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  color:var(--ink);
+}
+.daily-card .dc-icon{font-size:40px;}
+.daily-card .dc-info{flex:1;min-width:220px;text-align:left;}
+.daily-card .dc-title{font-size:16px;font-weight:bold;margin-bottom:4px;}
+.daily-card .dc-desc{font-size:13px;color:#6B5B2E;font-weight:bold;}
+.daily-card .dc-state{font-size:14px;font-weight:bold;color:var(--green);}
+
+/* ---------- 成就 toast ---------- */
+.ach-toast{
+  position:fixed;top:16px;right:16px;z-index:100;
+  background:var(--cream);border:3px solid var(--ink);border-radius:14px;
+  box-shadow:0 5px 0 rgba(43,58,74,.4);
+  padding:12px 20px;display:flex;align-items:center;gap:12px;
+  animation:toastIn .4s cubic-bezier(.68,-.55,.27,1.55);
+}
+.ach-toast .at-icon{font-size:30px;}
+.ach-toast .at-name{font-size:16px;font-weight:bold;color:var(--ink);}
+.ach-toast .at-desc{font-size:12px;color:var(--dim);font-weight:bold;margin-top:2px;}
+.ach-toast .at-cups{font-size:14px;font-weight:bold;color:var(--orange);}
+@keyframes toastIn{
+  from{transform:translateX(120%);opacity:0;}
+  to{transform:translateX(0);opacity:1;}
+}
+
 .over-panel{margin:10vh auto 0;max-width:460px;}
 .newbest{
   color:var(--orange);font-size:18px;font-weight:bold;letter-spacing:3px;margin-bottom:10px;
@@ -602,6 +786,22 @@ body.music-off .ch-jp{display:none;} /* 音符模式关闭：与旧版外观一�
 .stat-label{color:var(--dim);font-size:13px;font-weight:bold;letter-spacing:2px;}
 #screen-stats{text-align:center;}
 #screen-stats .bar{text-align:left;}
+
+/* 成就墙 */
+.ach-wall{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:14px;max-width:900px;margin:0 auto;
+}
+.ach-card{
+  background:var(--cream);border:3px solid var(--ink);border-radius:14px;
+  box-shadow:0 4px 0 rgba(43,58,74,.3);
+  padding:14px 10px;text-align:center;
+}
+.ach-card .ach-icon{font-size:30px;margin-bottom:6px;}
+.ach-card .ach-name{font-size:14px;font-weight:bold;color:var(--ink);margin-bottom:4px;}
+.ach-card .ach-desc{font-size:11px;color:var(--dim);font-weight:bold;margin-bottom:6px;line-height:1.4;}
+.ach-card .ach-cups{font-size:12px;font-weight:bold;color:var(--orange);}
+.ach-card.locked{opacity:.55;filter:grayscale(.7);}
 
 /* ---------- 窄屏适配 ---------- */
 @media (max-width:720px){
