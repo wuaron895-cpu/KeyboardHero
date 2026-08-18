@@ -1,0 +1,128 @@
+/* ============================================================
+   rhythm.css —— 节奏模式（打字版太鼓达人）样式。
+   沿用 style.css 的拉布布潮玩语言：3px 深描边 + 硬阴影 +
+   奶油面板 + 大圆角；判定反馈复用全局 floatUp/comboBounce。
+   ============================================================ */
+
+/* ---------- 选曲屏 ---------- */
+.rh-tip{
+  max-width:900px;margin:0 auto 20px;text-align:center;
+  color:#fff;font-weight:bold;font-size:15px;
+  text-shadow:1px 1px 0 rgba(43,58,74,.5);
+}
+.rh-keys-hint{
+  max-width:900px;margin:22px auto 0;text-align:center;
+  color:rgba(255,255,255,.85);font-size:13px;font-weight:bold;
+  text-shadow:1px 1px 0 rgba(43,58,74,.4);
+}
+.rh-keys-hint b{
+  font-family:var(--mono);color:var(--yellow);letter-spacing:3px;font-size:14px;
+}
+
+/* ---------- 游戏屏顶栏 ---------- */
+.rh-hud{font-size:14px;font-weight:bold;color:#fff;text-shadow:1px 1px 0 rgba(43,58,74,.5);}
+.rh-goal{
+  font-size:12px;font-weight:bold;color:rgba(255,255,255,.75);
+  text-shadow:1px 1px 0 rgba(43,58,74,.4);letter-spacing:1px;
+}
+
+/* ---------- 舞台（进度条 + 下落区 + 简化键盘） ---------- */
+#rh-stage{max-width:900px;margin:0 auto;}
+#rh-progress{
+  height:12px;border:2px solid var(--ink);border-radius:999px;
+  background:rgba(255,255,255,.85);overflow:hidden;margin-bottom:10px;
+}
+#rh-progress-fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--green),var(--yellow));
+}
+
+/* 下落区：半透明深色圆角面板，音符在其中下落 */
+#rh-fall{
+  position:relative;overflow:hidden;
+  height:60vh;min-height:340px;
+  background:rgba(43,58,74,.55);
+  border:3px solid var(--ink);border-radius:16px;
+  box-shadow:0 5px 0 rgba(43,58,74,.3);
+}
+#rh-notes{position:absolute;inset:0;}
+
+/* 判定线：底部亮色横线（与 js 的 LINE_BOTTOM 对应） */
+#rh-judge-line{
+  position:absolute;left:14px;right:14px;bottom:80px;height:4px;
+  background:var(--yellow);border-radius:2px;
+  box-shadow:0 0 10px rgba(255,201,60,.8);
+}
+
+/* 音符：奶油圆盘，大字键名 + 小字简谱；left 固定 50%，y 由 JS transform 驱动 */
+.rh-note{
+  position:absolute;left:50%;top:0;
+  width:64px;height:64px;margin-left:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--cream);
+  border:3px solid var(--ink);border-radius:50%;
+  box-shadow:0 4px 0 rgba(43,58,74,.35);
+  will-change:transform;
+}
+.rh-note-key{font-family:var(--mono);font-weight:bold;font-size:24px;color:var(--ink);line-height:1;}
+.rh-note-deg{font-family:var(--mono);font-size:12px;color:var(--dim);line-height:1.2;}
+/* 判定着色：位置原地定格，靠透明度消散（不抢 transform） */
+.rh-note.j-perfect{background:var(--yellow);transition:opacity .18s;opacity:0;}
+.rh-note.j-good{background:var(--green);transition:opacity .18s;opacity:0;}
+.rh-note.j-miss{background:var(--red);transition:opacity .3s;opacity:0;}
+
+/* 判定反馈字：判定线上方弹出淡出（动画复用全局 floatUp） */
+.j-pop{
+  position:absolute;left:50%;bottom:96px;z-index:6;pointer-events:none;
+  transform:translateX(-50%);
+  font-size:28px;font-weight:bold;letter-spacing:2px;
+  text-shadow:2px 2px 0 var(--ink);
+  animation:floatUp .8s forwards;
+}
+.j-perfect-txt{color:var(--yellow);}
+.j-good-txt{color:var(--green);}
+.j-miss-txt{color:var(--red);}
+
+/* 判定线下方的「当前应敲」巨型键帽提示（弱化版 next-hero） */
+.rh-hint{
+  position:absolute;left:50%;bottom:6px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:8px;pointer-events:none;
+}
+.rh-hint-cap{
+  width:52px;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:bold;font-size:26px;color:#4a4336;
+  background:linear-gradient(#fffdf7,#eee7d6);
+  border:3px solid var(--ink);border-bottom-width:6px;border-radius:14px;
+  box-shadow:0 4px 0 rgba(0,0,0,.35);
+}
+.rh-hint-deg{font-family:var(--mono);font-size:15px;font-weight:bold;color:var(--yellow);text-shadow:1px 1px 0 var(--ink);}
+
+/* ---------- 底部 13 键简化键盘 ---------- */
+.rh-kb{margin-top:14px;}
+.rh-kb .key{width:52px;height:52px;font-size:18px;}
+.rh-kb .rh-key-space{width:280px;}
+/* 敲键按压闪烁（与 .key.next 同语言：下沉 + 投影收浅，不变色） */
+.rh-kb .key.press{
+  transform:translateY(3px);
+  box-shadow:0 1px 0 #c6bfae,0 3px 6px rgba(90,80,60,.3);
+}
+
+/* ---------- 结算评级大字 ---------- */
+.rh-rank{
+  font-size:64px;font-weight:bold;line-height:1.1;margin:4px 0 10px;
+  color:var(--yellow);text-shadow:3px 3px 0 var(--ink);
+}
+.rh-rank.rk-S{color:var(--yellow);}
+.rh-rank.rk-A{color:var(--orange);}
+.rh-rank.rk-B{color:var(--sky2);}
+.rh-rank.rk-C{color:var(--dim);}
+
+/* ---------- 窄屏适配 ---------- */
+@media (max-width:720px){
+  .rh-kb .key{width:34px;height:42px;font-size:13px;}
+  .rh-kb .rh-key-space{width:150px;}
+  .rh-note{width:52px;height:52px;}
+  .rh-note-key{font-size:19px;}
+  .j-pop{font-size:22px;}
+}
