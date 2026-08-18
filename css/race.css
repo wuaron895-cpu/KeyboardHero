@@ -1,0 +1,108 @@
+/* ============================================================
+   race.css —— 打字赛车（竞速模式）样式。
+   沿用 style.css 的拉布布潮玩语言；光标闪烁/横幅弹入复用
+   全局 curBlink / bannerIn 动画，数据胶囊复用全局 .ts-item。
+   ============================================================ */
+
+/* ---------- 顶栏数据 ---------- */
+.rc-hud{font-size:14px;font-weight:bold;color:#fff;text-shadow:1px 1px 0 rgba(43,58,74,.5);}
+
+/* ---------- 布局 ---------- */
+.rc-wrap{max-width:1000px;margin:0 auto;}
+
+/* ---------- 目标词横幅（奶油贴纸，train-text 视觉语言） ---------- */
+.rc-word{
+  margin:0 auto 16px;
+  background:var(--cream);
+  border:3px solid var(--ink);border-radius:16px;
+  box-shadow:0 5px 0 rgba(43,58,74,.3);
+  padding:18px 26px;text-align:center;
+  font-family:var(--mono);font-size:36px;line-height:1.4;
+  min-height:84px;letter-spacing:4px;
+}
+.rc-ch{color:#9aa7b8;}
+.rc-ch.done{color:#4CAF1D;font-weight:bold;}
+.rc-ch.cur{
+  color:var(--ink);
+  box-shadow:inset 0 -4px 0 var(--yellow);
+  animation:curBlink 1s step-end infinite; /* 复用全局光标闪烁 */
+}
+.rc-ch.badflash{color:#fff;background:var(--red);border-radius:6px;}
+
+/* ---------- 赛道 ---------- */
+.rc-track{
+  position:relative;overflow:hidden;
+  height:170px;
+  background:linear-gradient(180deg,#6b7684 0%,#525d6b 55%,#46505c 100%);
+  border:3px solid var(--ink);border-radius:16px;
+  box-shadow:0 5px 0 rgba(43,58,74,.3);
+}
+/* 虚线车道分隔线 */
+.rc-lane-line{
+  position:absolute;left:0;right:0;top:50%;
+  border-top:4px dashed rgba(255,255,255,.55);
+}
+/* 终点旗 */
+.rc-finish{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-size:36px;z-index:2;
+  filter:drop-shadow(0 3px 2px rgba(0,0,0,.35));
+}
+
+/* 赛车：left 由 JS 按里程驱动；玩家车带 0.3s 缓动（打对/打错瞬间跳变平滑） */
+.rc-car{
+  position:absolute;z-index:3;
+  font-size:40px;line-height:1;
+  transform:translateX(-50%);
+  will-change:left;
+}
+.rc-car-in{display:inline-block;animation:rcBob .5s ease-in-out infinite;} /* 轻微上下浮动 */
+@keyframes rcBob{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-4px);}
+}
+.rc-player{top:58%;transition:left .3s ease-out;}
+.rc-ghost{top:16%;opacity:.55;filter:saturate(.6);}
+.rc-ghost-badge{
+  position:absolute;left:50%;top:-18px;transform:translateX(-50%);
+  font-size:18px;
+}
+
+/* 打对冲刺：车身前蹿放大 */
+.rc-car.boost .rc-car-in{animation:rcBoost .3s ease-out;}
+@keyframes rcBoost{
+  30%{transform:translateX(10px) scale(1.22);}
+}
+/* 打错刹车：车尾（左侧）红光 */
+.rc-car.braking{filter:drop-shadow(-10px 0 8px rgba(255,60,60,.95));}
+
+/* ---------- 数据胶囊行 ---------- */
+.rc-dash{
+  display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+  margin-top:16px;
+}
+
+/* ---------- 常驻提示行 ---------- */
+.rc-tip{
+  text-align:center;margin-top:14px;
+  color:rgba(255,255,255,.85);font-size:13px;font-weight:bold;
+  text-shadow:1px 1px 0 rgba(43,58,74,.4);
+}
+.rc-tip b{color:var(--yellow);}
+
+/* ---------- 冲线彩带 ---------- */
+.rc-confetti{
+  position:absolute;top:-30px;z-index:5;pointer-events:none;
+  font-size:22px;
+  animation:rcConfetti 2.2s ease-in forwards;
+}
+@keyframes rcConfetti{
+  to{transform:translateY(240px) rotate(320deg);opacity:.2;}
+}
+
+/* ---------- 窄屏适配 ---------- */
+@media (max-width:720px){
+  .rc-word{font-size:26px;padding:14px;}
+  .rc-car{font-size:30px;}
+  .rc-finish{font-size:28px;}
+}
