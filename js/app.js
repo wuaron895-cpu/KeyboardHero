@@ -82,11 +82,25 @@
     return {
       correct: function () { tone(600, 800, 0.05, 'sine', 0.1); },      // 击键正确：轻点上扬
       error:   function () { tone(220, 150, 0.12, 'square', 0.15); },   // 击键错误：低哑「嘟」
-      laser:   function () { tone(400, 900, 0.08, 'sine', 0.2); },      // 击杀：短促上扬「啵」
+      laser:   function (combo) {                                       // 击杀：短促上扬「啵」；连击越高音越高
+        var step = Math.min(combo || 0, 40) * 15;
+        tone(400 + step, 900 + step, 0.08, 'sine', 0.2);
+      },
       boom:    function () { noise(0.4, 0.3, 500); },                   // 终场爆炸
       alarm:   function () {                                            // 基地被咬：两连音
         tone(700, 700, 0.1, 'square', 0.18);
         setTimeout(function () { tone(520, 520, 0.16, 'square', 0.18); }, 150);
+      },
+      heartbeat: function () { tone(80, 55, 0.14, 'sine', 0.22); },     // 危险预警：低频心跳
+      item:      function () { tone(500, 1300, 0.15, 'triangle', 0.18); }, // 道具/升级获取：上扬
+      skill:     function () { tone(200, 1500, 0.3, 'sawtooth', 0.2); },   // 技能释放：扫频
+      shieldBreak: function () { tone(950, 500, 0.07, 'square', 0.15); },  // 破盾：清脆下坠
+      shieldBlock: function () { tone(300, 300, 0.15, 'triangle', 0.2); }, // 护盾格挡：闷响
+      baitTrap:  function () { noise(0.25, 0.22, 400); },                  // 诱饵爆炸
+      ach:       function () {                                             // 成就解锁：三音上行
+        tone(523, 523, 0.08, 'square', 0.13);
+        setTimeout(function () { tone(784, 784, 0.12, 'square', 0.13); }, 100);
+        setTimeout(function () { tone(1046, 1046, 0.2, 'square', 0.13); }, 220);
       },
       boss:    function () { tone(260, 70, 0.5, 'sawtooth', 0.22); },   // BOSS 出场：低音滑音
       perfect: function () {                                            // 完美防守：三连上扬
@@ -148,6 +162,82 @@
   KeyForce.addCups = function (n) {
     if (n > 0) { store.set('cups', store.get('cups', 0) + n); }
   };
+
+  /* ==================== 成就系统（保卫战） ==================== */
+  // 全局 toast（右上角滑入，2.6s 自动隐藏）
+  function toast(icon, title, sub) {
+    var t = $('ach-toast');
+    t.innerHTML =
+      '<span class="at-icon">' + icon + '</span>' +
+      '<div><div class="at-name">' + title + '</div>' +
+      '<div class="at-cups">' + sub + '</div></div>';
+    t.classList.remove('hidden');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.add('hidden'); }, 2600);
+  }
+
+  // 成就解锁（幂等）：记录 → 加杯 → toast
+  KeyForce.ach = function (id) {
+    var list = store.get('achievements', {});
+    if (list[id]) { return; }
+    var a = null;
+    D.ACHIEVEMENTS.forEach(function (x) { if (x.id === id) { a = x; } });
+    if (!a) { return; }
+    list[id] = true;
+    store.set('achievements', list);
+    KeyForce.addCups(a.cups);
+    toast(a.icon, '成就解锁 · ' + a.name, '+' + a.cups + ' 🏆');
+    audio.ach();
+  };
+
+  /* ==================== 每日挑战（保卫战） ==================== */
+  // 当日挑战配置：按日期在「已解锁英雄」中轮换；目标分 = targetBase × 英雄得分倍率
+  function dailyInfo(day) {
+    var unlockedLv = store.get('unlocked', 1);
+    var hs = D.HEROES.filter(function (h) { return isHeroUnlocked(h, unlockedLv); });
+    if (!hs.length) { return null; }
+    var hero = hs[day % hs.length];
+    return { hero: hero, target: Math.round(D.DAILY.targetBase * hero.scoreMult) };
+  }
+
+  // 战斗结算时检查：达标且当日未完成 → 完成并奖励
+  KeyForce.dailyCheck = function (score) {
+    var day = Math.floor(Date.now() / 86400000);
+    var info = dailyInfo(day);
+    if (!info) { return; }
+    var cur = store.get('daily', { day: -1, done: false, best: 0 });
+    if (cur.day !== day) { cur = { day: day, done: false, best: 0 }; }
+    if (score > cur.best) { cur.best = score; }
+    if (!cur.done && score >= info.target) {
+      cur.done = true;
+      KeyForce.addCups(D.DAILY.reward);
+      toast('📅', '每日挑战完成！', '+' + D.DAILY.reward + ' 🏆');
+      audio.ach();
+    }
+    store.set('daily', cur);
+  };
+
+  // 英雄选择页顶部的每日挑战卡
+  function renderDaily() {
+    var day = Math.floor(Date.now() / 86400000);
+    var info = dailyInfo(day);
+    var card = $('daily-card');
+    if (!info) { card.style.display = 'none'; return; }
+    var cur = store.get('daily', { day: -1, done: false });
+    var done = (cur.day === day && cur.done);
+    card.style.display = '';
+    card.innerHTML =
+      '<div class="dc-icon">📅</div>' +
+      '<div class="dc-info">' +
+        '<div class="dc-title">每日挑战：用「' + info.hero.name + '」' + info.hero.emoji + ' 单局拿 ' + info.target + ' 分</div>' +
+        '<div class="dc-desc">' + info.hero.desc + ' · 完成奖励 ' + D.DAILY.reward + ' 🏆</div>' +
+      '</div>' +
+      (done
+        ? '<div class="dc-state">✔ 今日已完成' + (cur.best ? '（本日最佳 ' + cur.best + '）' : '') + '</div>'
+        : '<button class="btn btn-primary" id="btn-daily-go">接受挑战</button>');
+    var go = $('btn-daily-go');
+    if (go) { go.addEventListener('click', function () { KeyForce.battle.start(info.hero.id); }); }
+  }
 
   // 渲染某处的「段位徽章 + 杯数进度条」（主菜单 prefix=menu，战绩页 prefix=stat）
   function renderTier(prefix) {
@@ -680,6 +770,7 @@
 
   // 保卫战入口：英雄选择卡片墙
   function renderHeroes() {
+    renderDaily(); // 顶部每日挑战卡
     var grid = $('hero-grid');
     grid.innerHTML = '';
     var unlockedLv = store.get('unlocked', 1);
@@ -732,6 +823,35 @@
     return s + ' 秒';
   }
 
+  // 战绩页成就墙（已解锁亮色，未解锁置灰带锁）
+  function renderAchWall() {
+    var wall = $('stats-ach-wall');
+    wall.innerHTML = '';
+    var got = store.get('achievements', {});
+    D.ACHIEVEMENTS.forEach(function (a) {
+      var c = document.createElement('div');
+      var ok = !!got[a.id];
+      c.className = 'ach-card' + (ok ? '' : ' locked');
+      c.innerHTML =
+        '<div class="ach-icon">' + (ok ? a.icon : '🔒') + '</div>' +
+        '<div class="ach-name">' + a.name + '</div>' +
+        '<div class="ach-desc">' + a.desc + '</div>' +
+        '<div class="ach-cups">+' + a.cups + ' 🏆</div>';
+      wall.appendChild(c);
+    });
+  }
+
+  // 战绩页小游戏纪录：节奏最高评级（S>A>B>C 字典序即强度序）、拆弹最高分、赛车最快
+  function renderMiniGames() {
+    var rb = store.get('rhythm_best', {});
+    var vals = [];
+    for (var k in rb) { if (Object.prototype.hasOwnProperty.call(rb, k)) { vals.push(rb[k]); } }
+    $('stat-rhythm-best').textContent = vals.length ? vals.sort().reverse()[0] : '—';
+    $('stat-bomb-best').textContent = store.get('bomb_best', 0) || '—';
+    var rbest = store.get('race_best', 0);
+    $('stat-race-best').textContent = rbest ? rbest + 's' : '—';
+  }
+
   function renderStats() {
     var st = store.get('stats', {});
     $('stat-total-keys').textContent = st.totalKeys || 0;
@@ -741,6 +861,8 @@
     $('stat-best-acc').textContent = st.bestAcc ? st.bestAcc + '%' : '—';
     renderTier('stat');
     renderHeroWall();
+    renderAchWall();
+    renderMiniGames();
   }
 
   /* ==================== 静音开关 ==================== */
@@ -755,6 +877,9 @@
     // 主菜单
     bind('btn-goto-levels', function () { renderLevels(); show('screen-levels'); });
     bind('btn-goto-battle', function () { renderHeroes(); show('screen-heroes'); });
+    bind('btn-goto-rhythm', function () { KeyForce.rhythm.start(); });
+    bind('btn-goto-bomb', function () { KeyForce.bomb.start(); });
+    bind('btn-goto-race', function () { KeyForce.race.start(); });
     bind('btn-goto-finger', function () {
       show('screen-finger');
       drawZoneLine($('finger-keyboard'), fingerKb.map); // 可见后才能量键位
