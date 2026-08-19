@@ -21,6 +21,8 @@ Everything (sound effects, enemy visuals, virtual keyboard) is synthesized at ru
 
 纯原生 HTML/CSS/JavaScript，零依赖、零构建。**双击 `index.html` 即可离线运行**（file:// 协议）。
 
+**▶ 在线试玩**：<https://wuaron895-cpu.github.io/KeyboardHero/>
+
 ## 文件结构
 
 ```
